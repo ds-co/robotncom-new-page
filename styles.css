@@ -1,0 +1,71 @@
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  background-image: url(image/backimg.jpg);
+}
+
+.circle {
+  width: 500px;
+  height: 500px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  position: relative;
+  animation: draw 2s ease-in-out forwards, fill 1s ease-in-out 2s forwards, showImage 1s ease-in-out 3s forwards;
+}
+
+@keyframes draw {
+  0% {
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+  }
+  25% {
+    border-top-color: skyblue;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+  }
+  50% {
+    border-top-color: skyblue;
+    border-right-color: skyblue;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+  }
+  75% {
+    border-top-color: skyblue;
+    border-right-color: skyblue;
+    border-bottom-color: skyblue;
+    border-left-color: transparent;
+  }
+  100% {
+    border-top-color: skyblue;
+    border-right-color: skyblue;
+    border-bottom-color: skyblue;
+    border-left-color: skyblue;
+  }
+}
+
+@keyframes fill {
+  0% {
+    background-color: transparent;
+  }
+  100% {
+    background-color: skyblue;
+  }
+}
+
+@keyframes showImage {
+  0% {
+    background-image: none;
+  }
+  100% {
+    background-image: url('image/logo.png');
+    background-size: 50%;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+}
