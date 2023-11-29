@@ -1,0 +1,277 @@
+<!-- section에 텍스트,아이콘 배치 -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR&display=swap" rel="stylesheet">
+
+  
+  <script src="//unpkg.com/three"></script>
+  <script src="//unpkg.com/3d-force-graph"></script>
+</head>
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+
+}
+
+#3d-graph {
+  width: 100%;
+  height: 100vh;
+}
+
+</style>
+<body>
+  <div id="3d-graph"></div>
+<script>
+const distance = 270;
+let angle = 15;
+let isModalOpen = false;
+
+// Function to calculate distance between two nodes with units
+function calculateDistanceWithUnits(node1, node2) {
+  const dx = node1.x - node2.x;
+  const dy = node1.y - node2.y;
+  const dz = node1.z - node2.z;
+
+  // Return the coordinates
+  return { x: dx, y: dy, z: dz };
+}
+
+const nodeImages = {
+  1: "image/logo.svg",
+  2: {
+    Platform: "image/Platform.svg",
+    technology: "image/SI.svg",
+    Introduction: "image/Intro.svg",
+  },
+  3: {
+    Failertalk: "image/Failertalk.svg",
+    Ttagttaguli: "image/Ttakttaguri.svg",
+    naafaa: "image/Naafaa.svg",
+    moonjapay: "image/Moonjapay.svg",
+    "server & security solutions": "image/serversecurity.svg",
+    "network solutions": "image/Network.svg",
+    "Voice Infrastructure": "image/Voiceinfra.svg",
+    "Computer SW+HW": "image/Software.svg",
+    ICT: "image/ict.svg",
+    history: "image/history.svg",
+    "Our Competence": "image/competence.svg",
+  },
+};
+
+const Graph = ForceGraph3D()(document.getElementById("3d-graph"))
+  .jsonUrl("../datasets/miserables.json")
+  .nodeLabel("id")
+  .nodeAutoColorBy("group")
+  .linkDirectionalParticleSpeed(0.02) // 조절할 값입니다
+  .linkWidth(0.6)
+  .linkOpacity(1.0)
+  // 네비게이션 컨트롤 비활성화
+  .enableNavigationControls(false)
+  // 노드 드래그 비활성화
+  .enableNodeDrag(false)
+  .onNodeClick((node, event) => {
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    // Calculate normalized device coordinates
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Update the picking ray with the camera and mouse position
+    raycaster.setFromCamera(mouse, Graph.camera());
+
+    // Check for intersections with the node
+    const intersects = raycaster.intersectObject(node.__threeObj, true);
+
+    // Check if the clicked node is one of the target nodes
+    if (
+      [
+        "Failertalk",
+        "Ttagttaguli",
+        "naafaa",
+        "moonjapay",
+        "server & security solutions",
+        "Computer SW+HW",
+        "Voice Infrastructure",
+        "network solutions",
+        "ICT",
+        "history",
+        "Our Competence",
+      ].includes(node.id)
+    ) {
+      const targetNodes = ["RobotNcom"];
+
+      // Find the positions of the target nodes
+      const targetNodePositions = targetNodes.map((targetNode) => {
+        const targetNodeData = Graph.graphData().nodes.find(
+          (n) => n.id === targetNode
+        );
+        return {
+          id: targetNode,
+          position: {
+            x: targetNodeData.x,
+            y: targetNodeData.y,
+            z: targetNodeData.z,
+          },
+        };
+      });
+
+      // Log X, Y coordinates
+      targetNodePositions.forEach((target) => {
+        const coordinates = calculateDistanceWithUnits(node, target.position);
+        console.log(
+          `${node.id} 노드의 좌표에서 ${
+            target.id
+          }노드 까지의 좌표 값: X=${coordinates.x.toFixed(
+            2
+          )}, Y=${coordinates.y.toFixed(2)}`
+        );
+      });
+    }
+
+    if (intersects.length > 0) {
+      // Clicked inside the node image
+      clickedNodeId = node.id;
+
+      // Call the appropriate modal function based on the clicked node
+      switch (node.id) {
+        case "naafaa":
+          showNaafaModal();
+          break;
+        case "Failertalk":
+          showFailerModal();
+          break;
+        case "Ttagttaguli":
+          showTtackModal();
+          break;
+        case "moonjapay":
+          showPayModal();
+          break;
+        // Add cases for other nodes as needed
+        default:
+          break;
+      }
+    }
+  })
+  .nodeThreeObject((node) => {
+    // 노드의 그룹 ID와 노드 ID를 가져옵니다.
+    const groupId = node.group;
+    const nodeId = node.id;
+
+    // 노드 이미지가 존재하는 경우
+    if (nodeImages[groupId]) {
+      // 노드에 대한 이미지 경로를 가져옵니다.
+      let imageSrc = nodeImages[groupId];
+
+      // 이미지 경로가 객체 형태로 제공되는 경우 해당 노드에 대한 이미지를 선택합니다
+      if (typeof imageSrc === "object" && imageSrc[nodeId]) {
+        imageSrc = imageSrc[nodeId];
+      }
+
+      // 로고 텍스처를 로드하고 인코딩을 sRGB로 설정합니다.
+      const logoTexture = textureLoader.load(imageSrc);
+      logoTexture.encoding = THREE.sRGBEncoding;
+
+      const imageMaterial = new THREE.MeshBasicMaterial({
+        map: logoTexture,
+        depthTest: false,
+        transparent: true,
+        side: THREE.DoubleSide,
+        renderOrder: -1,
+      });
+
+      // 이미지 메시를 생성하고 크기를 조절합니다
+      const image = new THREE.Mesh(
+        new THREE.PlaneGeometry(15, 15),
+        imageMaterial
+      );
+
+      // 이미지가 렌더링되기 전에 호출되는 콜백 함수를 정의합니다.
+      image.onBeforeRender = function (
+        renderer,
+        scene,
+        camera,
+        geometry,
+        material,
+        group
+      ) {
+        // 카메라의 회전 값을 복사하고 이미지의 회전을 설정합니다.
+        const euler = new THREE.Euler();
+        euler.copy(camera.rotation);
+        image.rotation.set(euler.x, euler.y, euler.z);
+      };
+
+      // THREE.Group을 생성하고 이미지를 추가합니다.
+      const group = new THREE.Group();
+      group.add(image);
+
+      return group;
+    }
+  })
+
+  .onEngineTick(() => {
+    const graphData = Graph.graphData();
+    const centralNode = graphData.nodes.find((n) => n.id === "RobotNcom");
+    const techNode = graphData.nodes.find((n) => n.id === "technology");
+    const platformNode = graphData.nodes.find((n) => n.id === "Platform");
+    const introNode = graphData.nodes.find((n) => n.id === "Introduction");
+
+    if (centralNode && techNode && platformNode && introNode) {
+      centralNode.__threeObj.scale.set(4, 4, 4);
+      techNode.__threeObj.scale.set(2, 2, 2);
+      platformNode.__threeObj.scale.set(2, 2, 2);
+      introNode.__threeObj.scale.set(2, 2, 2);
+    }
+  });
+
+// Add an event listener for the modal open and close events
+window.addEventListener("modalOpen", () => {
+  isModalOpen = true;
+});
+
+window.addEventListener("modalClose", () => {
+  isModalOpen = false;
+});
+
+// Camera orbit
+setInterval(() => {
+  if (!isModalOpen) {
+    Graph.cameraPosition({
+      x: distance * Math.sin(angle),
+      z: distance * Math.cos(angle),
+    });
+    angle += Math.PI / 6500;
+  }
+}, 10);
+
+// Use Three.js onWindowResize event to handle window resize
+window.addEventListener("resize", () => {
+  Graph.width(window.innerWidth);
+  Graph.height(window.innerHeight);
+
+  // Recenter nodes on window resize
+  centerNodes();
+});
+
+const textureLoader = new THREE.TextureLoader();
+const backgroundTexture = textureLoader.load("image/backimg.jpg");
+
+Graph.renderer().setClearColor(new THREE.Color("rgba(0, 0, 0, 1)")); // Set alpha value (0.8 for 80% opacity)
+backgroundTexture.minFilter = THREE.NearestFilter;
+Graph.scene().background = backgroundTexture;
+</script>
+</body>
+
+</html>

@@ -1,12 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css">
-  <title>Animated Circle</title>
+  <title>로봇앤컴</title>
 </head>
+
 <body>
   <div class="circle"></div>
+  <div id="home-content"></div>
+  <h1>
+    우리는 융복합 IT 시스템 패키지 및<br>
+    B2B, B2G, B2C Hospital ICT 플랫폼 솔루션 전문 기업입니다.<br>
+    이제, 세계적으로 의료·진료 분야에 감동을 드리겠습니다.
+  </h1>
+  <script>
+       document.addEventListener("DOMContentLoaded", function() {
+      const homeContent = document.getElementById("home-content");
+      const h1AnimationDuration = 5000;
+
+      setTimeout(() => {
+        // 이 부분에서 index.html의 circle과 h1을 숨깁니다.
+        document.querySelector(".circle").style.display = "none";
+        document.querySelector("h1").style.display = "none";
+
+        // home.html을 미리 로드하여 body에 직접 추가합니다.
+        const iframe = document.createElement("iframe");
+        iframe.src = "home.html";
+        iframe.frameBorder = "0";
+        iframe.width = "100%";
+        iframe.height = "100%";
+        document.body.innerHTML = ""; // 기존 body 내용을 지워줍니다.
+        document.body.appendChild(iframe);
+
+        // home-content를 나타나게 하는 애니메이션을 추가합니다.
+        homeContent.style.animation = "showHomeContent 1s ease-in-out forwards";
+      }, h1AnimationDuration);
+    });
+  </script>
 </body>
 </html>
+

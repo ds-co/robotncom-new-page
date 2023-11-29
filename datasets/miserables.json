@@ -1,0 +1,40 @@
+{
+    "nodes": [
+      {"id": "RobotNcom", "group": 1},
+  
+      {"id": "Platform", "group": 2},
+      {"id": "Failertalk", "group": 3},
+      {"id": "Ttagttaguli", "group": 3},
+      {"id": "naafaa", "group": 3},
+      {"id": "moonjapay", "group": 3},
+  
+      {"id": "technology", "group": 2},
+      {"id": "server & security solutions", "group": 3},
+      {"id": "Voice Infrastructure", "group": 3},
+      {"id": "network solutions", "group": 3},
+      {"id": "Computer SW+HW", "group": 3},
+      {"id": "ICT", "group": 3},
+  
+      {"id": "Introduction", "group": 2},
+      {"id": "history", "group": 3},
+      {"id": "Our Competence", "group": 3}
+    ],
+    "links": [
+      {"source": "Platform", "target": "RobotNcom", "value": 1},
+      {"source": "Failertalk", "target": "Platform", "value": 2},
+      {"source": "Ttagttaguli", "target": "Platform", "value": 2},
+      {"source": "naafaa", "target": "Platform", "value": 2},
+      {"source": "moonjapay", "target": "Platform", "value": 2},
+  
+      {"source": "technology", "target": "RobotNcom", "value": 1},
+      {"source": "server & security solutions", "target": "technology", "value": 2},
+      {"source": "Voice Infrastructure", "target": "technology", "value": 2},
+      {"source": "network solutions", "target": "technology", "value": 2},
+      {"source": "Computer SW+HW", "target": "technology", "value": 2},
+      {"source": "ICT", "target": "technology", "value": 2},
+  
+      {"source": "Introduction", "target": "RobotNcom", "value": 1},
+      {"source": "history", "target": "Introduction", "value": 2},
+      {"source": "Our Competence", "target": "Introduction", "value": 2}    
+    ]
+  }
