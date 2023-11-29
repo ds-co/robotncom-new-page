@@ -35,6 +35,7 @@ body {
   height: 100vh;
   margin: 0;
   background-image: url(image/backimg.jpg);
+  font-family: 'pretendard';
 }
 
 div.circle {

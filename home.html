@@ -2,7 +2,8 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@700&display=swap" rel="stylesheet">
@@ -13,265 +14,398 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR&display=swap" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
 
-  
-  <script src="//unpkg.com/three"></script>
-  <script src="//unpkg.com/3d-force-graph"></script>
+
+    <script src="//unpkg.com/three"></script>
+    <script src="//unpkg.com/3d-force-graph"></script>
 </head>
 <style>
-body {
-  margin: 0;
-  overflow: hidden;
+    body {
+        margin: 0;
+        overflow: hidden;
+        font-family: 'pretendard';
+        cursor: default;
+        /* Set the default cursor style */
+    }
 
-}
+    body.draggable {
+        cursor: grab;
+        /* Set the cursor style to 'grab' when dragging is possible */
+    }
 
-#3d-graph {
-  width: 100%;
-  height: 100vh;
-}
+    body.dragging {
+        cursor: grabbing;
+        /* Set the cursor style to 'grabbing' when dragging is in progress */
+    }
 
+    nav {
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        text-align: center;
+        padding: 10px;
+    }
+
+    nav ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    nav li {
+        margin: 0 10px;
+        /* Adjust spacing between menu items as needed */
+    }
+
+    nav a {
+        display: block;
+        color: rgb(255, 255, 255);
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+    }
+
+    .logo {
+        max-height: 40px;
+        position: fixed;
+        top: 10px;
+        /* Adjust the top spacing as needed */
+        left: 10px;
+        /* Adjust the left spacing as needed */
+    }
+
+
+    #3d-graph {
+        width: 100%;
+        height: 100vh;
+        margin-top: 50px;
+        /* Adjust this margin to leave space for the navigation bar */
+    }
 </style>
+
 <body>
-  <div id="3d-graph"></div>
-<script>
-const distance = 270;
-let angle = 15;
-let isModalOpen = false;
+    <nav>
+        <img src="image/logo2.png" alt="Logo" class="logo">
+        <ul>
+            <li><a href="#whoweare">WHO WE ARE</a></li>
+            <li><a href="#networksolution">NETWORK SOLUTION</a></li>
+            <li><a href="#swsolution">SW SOLUTION</a></li>
+            <li><a href="#contactus">CONTACT US</a></li>
+        </ul>
+    </nav>
+    <div id="3d-graph"></div>
+    
+    <script>
+        const distance = 270;
+        let isModalOpen = false;
 
-// Function to calculate distance between two nodes with units
-function calculateDistanceWithUnits(node1, node2) {
-  const dx = node1.x - node2.x;
-  const dy = node1.y - node2.y;
-  const dz = node1.z - node2.z;
+        // Function to calculate distance between two nodes with units
+        function calculateDistanceWithUnits(node1, node2) {
+            const dx = node1.x - node2.x;
+            const dy = node1.y - node2.y;
+            const dz = node1.z - node2.z;
 
-  // Return the coordinates
-  return { x: dx, y: dy, z: dz };
-}
+            // Return the coordinates
+            return { x: dx, y: dy, z: dz };
+        }
 
-const nodeImages = {
-  1: "image/logo.svg",
-  2: {
-    Platform: "image/Platform.svg",
-    technology: "image/SI.svg",
-    Introduction: "image/Intro.svg",
-  },
-  3: {
-    Failertalk: "image/Failertalk.svg",
-    Ttagttaguli: "image/Ttakttaguri.svg",
-    naafaa: "image/Naafaa.svg",
-    moonjapay: "image/Moonjapay.svg",
-    "server & security solutions": "image/serversecurity.svg",
-    "network solutions": "image/Network.svg",
-    "Voice Infrastructure": "image/Voiceinfra.svg",
-    "Computer SW+HW": "image/Software.svg",
-    ICT: "image/ict.svg",
-    history: "image/history.svg",
-    "Our Competence": "image/competence.svg",
-  },
-};
-
-const Graph = ForceGraph3D()(document.getElementById("3d-graph"))
-  .jsonUrl("../datasets/miserables.json")
-  .nodeLabel("id")
-  .nodeAutoColorBy("group")
-  .linkDirectionalParticleSpeed(0.02) // 조절할 값입니다
-  .linkWidth(0.6)
-  .linkOpacity(1.0)
-  // 네비게이션 컨트롤 비활성화
-  .enableNavigationControls(false)
-  // 노드 드래그 비활성화
-  .enableNodeDrag(false)
-  .onNodeClick((node, event) => {
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    // Calculate normalized device coordinates
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    // Update the picking ray with the camera and mouse position
-    raycaster.setFromCamera(mouse, Graph.camera());
-
-    // Check for intersections with the node
-    const intersects = raycaster.intersectObject(node.__threeObj, true);
-
-    // Check if the clicked node is one of the target nodes
-    if (
-      [
-        "Failertalk",
-        "Ttagttaguli",
-        "naafaa",
-        "moonjapay",
-        "server & security solutions",
-        "Computer SW+HW",
-        "Voice Infrastructure",
-        "network solutions",
-        "ICT",
-        "history",
-        "Our Competence",
-      ].includes(node.id)
-    ) {
-      const targetNodes = ["RobotNcom"];
-
-      // Find the positions of the target nodes
-      const targetNodePositions = targetNodes.map((targetNode) => {
-        const targetNodeData = Graph.graphData().nodes.find(
-          (n) => n.id === targetNode
-        );
-        return {
-          id: targetNode,
-          position: {
-            x: targetNodeData.x,
-            y: targetNodeData.y,
-            z: targetNodeData.z,
-          },
+        const nodeImages = {
+            1: "image/logo.svg",
+            2: {
+                Platform: "image/Platform.svg",
+                technology: "image/SI.svg",
+                Introduction: "image/Intro.svg",
+            },
+            3: {
+                Failertalk: "image/Failertalk.svg",
+                Ttagttaguli: "image/Ttakttaguri.svg",
+                naafaa: "image/Naafaa.svg",
+                moonjapay: "image/Moonjapay.svg",
+                "server & security solutions": "image/serversecurity.svg",
+                "network solutions": "image/Network.svg",
+                "Voice Infrastructure": "image/Voiceinfra.svg",
+                "Computer SW+HW": "image/Software.svg",
+                ICT: "image/ict.svg",
+                history: "image/history.svg",
+                "Our Competence": "image/competence.svg",
+            },
         };
-      });
 
-      // Log X, Y coordinates
-      targetNodePositions.forEach((target) => {
-        const coordinates = calculateDistanceWithUnits(node, target.position);
-        console.log(
-          `${node.id} 노드의 좌표에서 ${
-            target.id
-          }노드 까지의 좌표 값: X=${coordinates.x.toFixed(
-            2
-          )}, Y=${coordinates.y.toFixed(2)}`
-        );
-      });
-    }
+        const Graph = ForceGraph3D()(document.getElementById("3d-graph"))
+            .jsonUrl("../datasets/miserables.json")
+            .nodeLabel("id")
+            .nodeAutoColorBy("group")
+            .linkDirectionalParticleSpeed(0.02) // 조절할 값입니다
+            .linkWidth(0.6)
+            .linkOpacity(1.0)
+            // 네비게이션 컨트롤 비활성화
+            .enableNavigationControls(false)
+            // 노드 드래그 비활성화
+            .enableNodeDrag(false)
+            .onNodeClick((node, event) => {
+                const raycaster = new THREE.Raycaster();
+                const mouse = new THREE.Vector2();
 
-    if (intersects.length > 0) {
-      // Clicked inside the node image
-      clickedNodeId = node.id;
+                // Calculate normalized device coordinates
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-      // Call the appropriate modal function based on the clicked node
-      switch (node.id) {
-        case "naafaa":
-          showNaafaModal();
-          break;
-        case "Failertalk":
-          showFailerModal();
-          break;
-        case "Ttagttaguli":
-          showTtackModal();
-          break;
-        case "moonjapay":
-          showPayModal();
-          break;
-        // Add cases for other nodes as needed
-        default:
-          break;
-      }
-    }
-  })
-  .nodeThreeObject((node) => {
-    // 노드의 그룹 ID와 노드 ID를 가져옵니다.
-    const groupId = node.group;
-    const nodeId = node.id;
+                // Update the picking ray with the camera and mouse position
+                raycaster.setFromCamera(mouse, Graph.camera());
 
-    // 노드 이미지가 존재하는 경우
-    if (nodeImages[groupId]) {
-      // 노드에 대한 이미지 경로를 가져옵니다.
-      let imageSrc = nodeImages[groupId];
+                // Check for intersections with the node
+                const intersects = raycaster.intersectObject(node.__threeObj, true);
 
-      // 이미지 경로가 객체 형태로 제공되는 경우 해당 노드에 대한 이미지를 선택합니다
-      if (typeof imageSrc === "object" && imageSrc[nodeId]) {
-        imageSrc = imageSrc[nodeId];
-      }
+                // Check if the clicked node is one of the target nodes
+                if (
+                    [
+                        "Failertalk",
+                        "Ttagttaguli",
+                        "naafaa",
+                        "moonjapay",
+                        "server & security solutions",
+                        "Computer SW+HW",
+                        "Voice Infrastructure",
+                        "network solutions",
+                        "ICT",
+                        "history",
+                        "Our Competence",
+                    ].includes(node.id)
+                ) {
+                    const targetNodes = ["RobotNcom"];
 
-      // 로고 텍스처를 로드하고 인코딩을 sRGB로 설정합니다.
-      const logoTexture = textureLoader.load(imageSrc);
-      logoTexture.encoding = THREE.sRGBEncoding;
+                    // Find the positions of the target nodes
+                    const targetNodePositions = targetNodes.map((targetNode) => {
+                        const targetNodeData = Graph.graphData().nodes.find(
+                            (n) => n.id === targetNode
+                        );
+                        return {
+                            id: targetNode,
+                            position: {
+                                x: targetNodeData.x,
+                                y: targetNodeData.y,
+                                z: targetNodeData.z,
+                            },
+                        };
+                    });
 
-      const imageMaterial = new THREE.MeshBasicMaterial({
-        map: logoTexture,
-        depthTest: false,
-        transparent: true,
-        side: THREE.DoubleSide,
-        renderOrder: -1,
-      });
+                    // Log X, Y coordinates
+                    targetNodePositions.forEach((target) => {
+                        const coordinates = calculateDistanceWithUnits(node, target.position);
+                        console.log(
+                            `${node.id} 노드의 좌표에서 ${target.id
+                            }노드 까지의 좌표 값: X=${coordinates.x.toFixed(
+                                2
+                            )}, Y=${coordinates.y.toFixed(2)}`
+                        );
+                    });
+                }
 
-      // 이미지 메시를 생성하고 크기를 조절합니다
-      const image = new THREE.Mesh(
-        new THREE.PlaneGeometry(15, 15),
-        imageMaterial
-      );
+                if (intersects.length > 0) {
+                    // Clicked inside the node image
+                    clickedNodeId = node.id;
 
-      // 이미지가 렌더링되기 전에 호출되는 콜백 함수를 정의합니다.
-      image.onBeforeRender = function (
-        renderer,
-        scene,
-        camera,
-        geometry,
-        material,
-        group
-      ) {
-        // 카메라의 회전 값을 복사하고 이미지의 회전을 설정합니다.
-        const euler = new THREE.Euler();
-        euler.copy(camera.rotation);
-        image.rotation.set(euler.x, euler.y, euler.z);
-      };
+                    // Call the appropriate modal function based on the clicked node
+                    switch (node.id) {
+                        case "naafaa":
+                            showNaafaModal();
+                            break;
+                        case "Failertalk":
+                            showFailerModal();
+                            break;
+                        case "Ttagttaguli":
+                            showTtackModal();
+                            break;
+                        case "moonjapay":
+                            showPayModal();
+                            break;
+                        // Add cases for other nodes as needed
+                        default:
+                            break;
+                    }
+                }
+            })
+            .nodeThreeObject((node) => {
+                // 노드의 그룹 ID와 노드 ID를 가져옵니다.
+                const groupId = node.group;
+                const nodeId = node.id;
 
-      // THREE.Group을 생성하고 이미지를 추가합니다.
-      const group = new THREE.Group();
-      group.add(image);
+                // 노드 이미지가 존재하는 경우
+                if (nodeImages[groupId]) {
+                    // 노드에 대한 이미지 경로를 가져옵니다.
+                    let imageSrc = nodeImages[groupId];
 
-      return group;
-    }
-  })
+                    // 이미지 경로가 객체 형태로 제공되는 경우 해당 노드에 대한 이미지를 선택합니다
+                    if (typeof imageSrc === "object" && imageSrc[nodeId]) {
+                        imageSrc = imageSrc[nodeId];
+                    }
 
-  .onEngineTick(() => {
-    const graphData = Graph.graphData();
-    const centralNode = graphData.nodes.find((n) => n.id === "RobotNcom");
-    const techNode = graphData.nodes.find((n) => n.id === "technology");
-    const platformNode = graphData.nodes.find((n) => n.id === "Platform");
-    const introNode = graphData.nodes.find((n) => n.id === "Introduction");
+                    // 로고 텍스처를 로드하고 인코딩을 sRGB로 설정합니다.
+                    const logoTexture = textureLoader.load(imageSrc);
+                    logoTexture.encoding = THREE.sRGBEncoding;
 
-    if (centralNode && techNode && platformNode && introNode) {
-      centralNode.__threeObj.scale.set(4, 4, 4);
-      techNode.__threeObj.scale.set(2, 2, 2);
-      platformNode.__threeObj.scale.set(2, 2, 2);
-      introNode.__threeObj.scale.set(2, 2, 2);
-    }
-  });
+                    const imageMaterial = new THREE.MeshBasicMaterial({
+                        map: logoTexture,
+                        depthTest: false,
+                        transparent: true,
+                        side: THREE.DoubleSide,
+                        renderOrder: -1,
+                    });
 
-// Add an event listener for the modal open and close events
-window.addEventListener("modalOpen", () => {
-  isModalOpen = true;
-});
+                    // 이미지 메시를 생성하고 크기를 조절합니다
+                    const image = new THREE.Mesh(
+                        new THREE.PlaneGeometry(15, 15),
+                        imageMaterial
+                    );
 
-window.addEventListener("modalClose", () => {
-  isModalOpen = false;
-});
+                    // 이미지가 렌더링되기 전에 호출되는 콜백 함수를 정의합니다.
+                    image.onBeforeRender = function (
+                        renderer,
+                        scene,
+                        camera,
+                        geometry,
+                        material,
+                        group
+                    ) {
+                        // 카메라의 회전 값을 복사하고 이미지의 회전을 설정합니다.
+                        const euler = new THREE.Euler();
+                        euler.copy(camera.rotation);
+                        image.rotation.set(euler.x, euler.y, euler.z);
+                    };
 
-// Camera orbit
-setInterval(() => {
-  if (!isModalOpen) {
-    Graph.cameraPosition({
-      x: distance * Math.sin(angle),
-      z: distance * Math.cos(angle),
-    });
-    angle += Math.PI / 6500;
-  }
-}, 10);
+                    // THREE.Group을 생성하고 이미지를 추가합니다.
+                    const group = new THREE.Group();
+                    group.add(image);
 
-// Use Three.js onWindowResize event to handle window resize
-window.addEventListener("resize", () => {
-  Graph.width(window.innerWidth);
-  Graph.height(window.innerHeight);
+                    return group;
+                }
+            })
 
-  // Recenter nodes on window resize
-  centerNodes();
-});
+            .onEngineTick(() => {
+                const graphData = Graph.graphData();
+                const centralNode = graphData.nodes.find((n) => n.id === "RobotNcom");
+                const techNode = graphData.nodes.find((n) => n.id === "technology");
+                const platformNode = graphData.nodes.find((n) => n.id === "Platform");
+                const introNode = graphData.nodes.find((n) => n.id === "Introduction");
 
-const textureLoader = new THREE.TextureLoader();
-const backgroundTexture = textureLoader.load("image/backimg.jpg");
+                if (centralNode && techNode && platformNode && introNode) {
+                    centralNode.__threeObj.scale.set(4, 4, 4);
+                    techNode.__threeObj.scale.set(2, 2, 2);
+                    platformNode.__threeObj.scale.set(2, 2, 2);
+                    introNode.__threeObj.scale.set(2, 2, 2);
+                }
+            });
 
-Graph.renderer().setClearColor(new THREE.Color("rgba(0, 0, 0, 1)")); // Set alpha value (0.8 for 80% opacity)
-backgroundTexture.minFilter = THREE.NearestFilter;
-Graph.scene().background = backgroundTexture;
-</script>
+        // Add an event listener for the modal open and close events
+        window.addEventListener("modalOpen", () => {
+            isModalOpen = true;
+        });
+
+        window.addEventListener("modalClose", () => {
+            isModalOpen = false;
+        });
+
+        // Camera orbit
+        setInterval(() => {
+            if (!isModalOpen) {
+                Graph.cameraPosition({
+                    x: distance * Math.sin(angle),
+                    z: distance * Math.cos(angle),
+                });
+                angle += Math.PI / 6500;
+            }
+        }, 10);
+
+        // Use Three.js onWindowResize event to handle window resize
+        window.addEventListener("resize", () => {
+            Graph.width(window.innerWidth);
+            Graph.height(window.innerHeight);
+
+            // Recenter nodes on window resize
+            centerNodes();
+        });
+
+        const textureLoader = new THREE.TextureLoader();
+        const backgroundTexture = textureLoader.load("image/backimg.jpg");
+
+        let prevX = 0,
+            prevY = 0;
+        const $target = document.querySelector("#direction");
+
+        let angle = 182;
+        setInterval(() => {
+            Graph.cameraPosition({
+                x: distance * Math.sin(angle),
+                z: distance * Math.cos(angle),
+            });
+            angle += Math.PI / 6000;
+        }, 10);
+
+        let mouseDownTimeout;
+        let mouseDown = false;
+
+        Graph.renderer().setClearColor(new THREE.Color("rgba(0, 0, 0, 1)")); // Set alpha value (0.8 for 80% opacity)
+        backgroundTexture.minFilter = THREE.NearestFilter;
+        Graph.scene().background = backgroundTexture;
+
+        window.addEventListener("mousedown", (e) => {
+            if (e.button === 0 || e.button === 2) {
+                // 왼쪽 또는 오른쪽 마우스 버튼이 눌렸을 때
+                mouseDown = true;
+
+                // 1000 밀리초(1초) 후에 함수 실행을 위한 타임아웃 설정
+                mouseDownTimeout = setTimeout(() => {
+                    // 1초 후에 실행할 코드
+                    console.log(
+                        `${e.button === 0 ? "왼쪽" : "오른쪽"} 마우스 버튼이 눌렸습니다.`
+                    );
+                    // 여기서 함수를 호출하거나 다른 작업을 수행할 수 있습니다.
+                    // 예를 들어, getMouseDirection(e)와 같은 함수를 호출할 수 있습니다.
+                    getMouseDirection(e);
+                }, 1000);
+            }
+        });
+
+
+        window.addEventListener("mouseup", () => {
+            // 마우스 버튼이 떼어지면 타임아웃을 지웁니다.
+            clearTimeout(mouseDownTimeout);
+            mouseDown = false;
+        });
+
+        window.addEventListener("mousemove", (e) => {
+            // 왼쪽 또는 오른쪽 마우스 버튼이 눌린 상태인지 확인합니다.
+            if (mouseDown) {
+                getMouseDirection(e);
+            }
+        });
+
+        function getMouseDirection(e) {
+            const xDir = prevX <= e.pageX ? "right" : "left";
+            prevX = e.pageX;
+            console.log(`${xDir} 마우스 방향`);
+            if (xDir === "left") {
+                Graph.cameraPosition({
+                    x: distance * Math.sin(angle),
+                    z: distance * Math.cos(angle),
+                });
+                angle += Math.PI / 100;
+            } else if (xDir === "right") {
+                Graph.cameraPosition({
+                    x: distance * Math.sin(angle),
+                    z: distance * Math.cos(angle),
+                });
+                angle -= Math.PI / 100;
+            }
+        }
+
+        
+    </script>
 </body>
 
 </html>
