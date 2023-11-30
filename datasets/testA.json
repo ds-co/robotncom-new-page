@@ -1,0 +1,16 @@
+{
+    "nodes": [
+      {"id": "Platform", "group": 1},
+      {"id": "Failertalk", "group": 2},
+      {"id": "Ttagttaguli", "group": 2},
+      {"id": "naafaa", "group": 2},
+      {"id": "moonjapay", "group": 2}
+    ],
+    "links": [
+      {"source": "Platform", "target": "Platform", "value": 1},
+      {"source": "Failertalk", "target": "Platform", "value": 2},
+      {"source": "Ttagttaguli", "target": "Platform", "value": 2},
+      {"source": "naafaa", "target": "Platform", "value": 2},
+      {"source": "moonjapay", "target": "Platform", "value": 2}
+    ]
+  }

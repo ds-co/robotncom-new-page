@@ -1,0 +1,360 @@
+<!-- section에 텍스트,아이콘 배치 -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR&display=swap" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+
+    <script src="//unpkg.com/three"></script>
+    <script src="//unpkg.com/3d-force-graph"></script>
+</head>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        font-family: 'pretendard';
+        cursor: default;
+        /* Set the default cursor style */
+    }
+
+    body.draggable {
+        cursor: grab;
+        /* Set the cursor style to 'grab' when dragging is possible */
+    }
+
+    body.dragging {
+        cursor: grabbing;
+        /* Set the cursor style to 'grabbing' when dragging is in progress */
+    }
+
+    nav {
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        text-align: center;
+        padding: 10px;
+    }
+
+    nav ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    nav li {
+        margin: 0 10px;
+        /* Adjust spacing between menu items as needed */
+    }
+
+    nav a {
+        display: block;
+        color: rgb(255, 255, 255);
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+    }
+
+    .logo {
+        max-height: 40px;
+        position: fixed;
+        top: 10px;
+        /* Adjust the top spacing as needed */
+        left: 10px;
+        /* Adjust the left spacing as needed */
+    }
+
+
+    #3d-graph {
+        width: 100%;
+        height: 100vh;
+        margin-top: 50px;
+        /* Adjust this margin to leave space for the navigation bar */
+    }
+
+    #text-overlay {
+    position: absolute;
+    top: 50%;
+    left: 80%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    z-index: 1000; /* Make sure it's above the graph */
+}
+@media screen and (max-width: 900px) {
+    #text-overlay {
+        top: 30%;
+        left: 50%; /* Keep it centered horizontally */
+    }
+    #text-overlay h1{
+        font-size: 18pt;
+    }
+    #text-overlay h3{
+        font-size: 11pt;
+    }
+}
+</style>
+
+<body>
+    <nav>
+        <img src="image/logo2.png" alt="Logo" class="logo" width="150">
+        <ul>
+            <li><a href="#whoweare">WHO WE ARE</a></li>
+            <li><a href="#networksolution">NETWORK SOLUTION</a></li>
+            <li><a href="#swsolution">SW SOLUTION</a></li>
+            <li><a href="#contactus">CONTACT US</a></li>
+        </ul>
+    </nav>
+    <div id="text-overlay">
+        <h1>네트워크 솔루션 전문가를 넘어 융복합 IT SI, 플랫폼 까지</h1>
+        <H3>IT 네트워크 솔루션을 기본으로<br>플랫폼 개발, 서버 및 보안솔루션, IoT 솔루션 외<br>융복합 IT SI를 위해 지속적으로 노력합니다.</H3>
+    </div>
+    <div id="3d-graph"></div>
+
+    <script>
+        const distance = 270;
+        let isModalOpen = false;
+
+        function calculateDistanceWithUnits(node1, node2) {
+            const dx = node1.x - node2.x;
+            const dy = node1.y - node2.y;
+            const dz = node1.z - node2.z;
+            return { x: dx, y: dy, z: dz };
+        }
+
+        const nodeImages = {
+            1: "image/Platform.svg",
+            2: {
+                Failertalk: "image/Failertalk.svg",
+                Ttagttaguli: "image/Ttakttaguri.svg",
+                naafaa: "image/Naafaa.svg",
+                moonjapay: "image/Moonjapay.svg"
+            }
+        };
+
+        const Graph = ForceGraph3D()(document.getElementById("3d-graph"))
+            .jsonUrl("../datasets/testA.json")
+            .nodeLabel("id")
+            .nodeAutoColorBy("group")
+            .linkDirectionalParticleSpeed(0.02)
+            .linkWidth(0.6)
+            .linkOpacity(1.0)
+            .enableNavigationControls(false)
+            .enableNodeDrag(false)
+            .onNodeClick((node, event) => {
+                const raycaster = new THREE.Raycaster();
+                const mouse = new THREE.Vector2();
+
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, Graph.camera());
+
+                const intersects = raycaster.intersectObject(node.__threeObj, true);
+
+                if (
+                    ["Failertalk", "Ttagttaguli", "naafaa", "moonjapay"].includes(node.id)
+                ) {
+                    const targetNodes = ["Platform"];
+
+                    const targetNodePositions = targetNodes.map((targetNode) => {
+                        const targetNodeData = Graph.graphData().nodes.find(
+                            (n) => n.id === targetNode
+                        );
+                        return {
+                            id: targetNode,
+                            position: {
+                                x: targetNodeData.x,
+                                y: targetNodeData.y,
+                                z: targetNodeData.z,
+                            },
+                        };
+                    });
+
+                    targetNodePositions.forEach((target) => {
+                        const coordinates = calculateDistanceWithUnits(node, target.position);
+                        console.log(
+                            `${node.id} 노드의 좌표에서 ${target.id}노드 까지의 좌표 값: X=${coordinates.x.toFixed(2)}, Y=${coordinates.y.toFixed(2)}`
+                        );
+                    });
+                }
+
+                if (intersects.length > 0) {
+                    clickedNodeId = node.id;
+
+                    switch (node.id) {
+                        case "naafaa":
+                            showNaafaModal();
+                            break;
+                        case "Failertalk":
+                            showFailerModal();
+                            break;
+                        case "Ttagttaguli":
+                            showTtackModal();
+                            break;
+                        case "moonjapay":
+                            showPayModal();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            })
+            .nodeThreeObject((node) => {
+                const groupId = node.group;
+                const nodeId = node.id;
+
+                if (nodeImages[groupId]) {
+                    let imageSrc = nodeImages[groupId];
+
+                    if (typeof imageSrc === "object" && imageSrc[nodeId]) {
+                        imageSrc = imageSrc[nodeId];
+                    }
+
+                    const logoTexture = textureLoader.load(imageSrc);
+                    logoTexture.encoding = THREE.sRGBEncoding;
+
+                    const imageMaterial = new THREE.MeshBasicMaterial({
+                        map: logoTexture,
+                        depthTest: false,
+                        transparent: true,
+                        side: THREE.DoubleSide,
+                        renderOrder: -1,
+                    });
+
+                    const image = new THREE.Mesh(
+                        new THREE.PlaneGeometry(15, 15),
+                        imageMaterial
+                    );
+
+                    image.onBeforeRender = function (
+                        renderer,
+                        scene,
+                        camera,
+                        geometry,
+                        material,
+                        group
+                    ) {
+                        const euler = new THREE.Euler();
+                        euler.copy(camera.rotation);
+                        image.rotation.set(euler.x, euler.y, euler.z);
+                    };
+
+                    const group = new THREE.Group();
+                    group.add(image);
+
+                    return group;
+                }
+            })
+            .onEngineTick(() => {
+                const graphData = Graph.graphData();
+                const centerNode = graphData.nodes.find((n) => n.id === "Platform");
+
+                if (centerNode) {
+                    centerNode.__threeObj.scale.set(3, 3, 3);
+                }
+            });
+
+        window.addEventListener("modalOpen", () => {
+            isModalOpen = true;
+        });
+
+        window.addEventListener("modalClose", () => {
+            isModalOpen = false;
+        });
+
+        setInterval(() => {
+            if (!isModalOpen) {
+                Graph.cameraPosition({
+                    x: distance * Math.sin(angle),
+                    z: distance * Math.cos(angle),
+                });
+                angle += Math.PI / 6500;
+            }
+        }, 10);
+
+        window.addEventListener("resize", () => {
+            Graph.width(window.innerWidth);
+            Graph.height(window.innerHeight);
+            centerNodes();
+        });
+
+        const textureLoader = new THREE.TextureLoader();
+        const backgroundTexture = textureLoader.load("image/backimg.jpg");
+
+        let prevX = 0,
+            prevY = 0;
+        const $target = document.querySelector("#direction");
+
+        let angle = 182;
+        setInterval(() => {
+            Graph.cameraPosition({
+                x: distance * Math.sin(angle),
+                z: distance * Math.cos(angle),
+            });
+            angle += Math.PI / 6000;
+        }, 10);
+
+        let mouseDownTimeout;
+        let mouseDown = false;
+
+        Graph.renderer().setClearColor(new THREE.Color("rgba(0, 0, 0, 1)"));
+        backgroundTexture.minFilter = THREE.NearestFilter;
+        Graph.scene().background = backgroundTexture;
+
+        window.addEventListener("mousedown", (e) => {
+            if (e.button === 0 || e.button === 2) {
+                mouseDown = true;
+
+                mouseDownTimeout = setTimeout(() => {
+                    console.log(
+                        `${e.button === 0 ? "왼쪽" : "오른쪽"} 마우스 버튼이 눌렸습니다.`
+                    );
+                    getMouseDirection(e);
+                }, 1000);
+            }
+        });
+
+        window.addEventListener("mouseup", () => {
+            clearTimeout(mouseDownTimeout);
+            mouseDown = false;
+        });
+
+        window.addEventListener("mousemove", (e) => {
+            if (mouseDown) {
+                getMouseDirection(e);
+            }
+        });
+
+        function getMouseDirection(e) {
+            const xDir = prevX <= e.pageX ? "right" : "left";
+            prevX = e.pageX;
+            console.log(`${xDir} 마우스 방향`);
+            if (xDir === "left") {
+                Graph.cameraPosition({
+                    x: distance * Math.sin(angle),
+                    z: distance * Math.cos(angle),
+                });
+                angle += Math.PI / 100;
+            } else if (xDir === "right") {
+                Graph.cameraPosition({
+                    x: distance * Math.sin(angle),
+                    z: distance * Math.cos(angle),
+                });
+                angle -= Math.PI / 100;
+            }
+        }
+
+    </script>
+</body>
+
+</html>
