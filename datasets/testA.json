@@ -1,16 +1,19 @@
 {
     "nodes": [
-      {"id": "Platform", "group": 1},
-      {"id": "Failertalk", "group": 2},
-      {"id": "Ttagttaguli", "group": 2},
-      {"id": "naafaa", "group": 2},
-      {"id": "moonjapay", "group": 2}
+      {"id": "SI", "group": 1},
+      {"id": "server solution", "group": 2},
+      {"id": "security solutions", "group": 2},
+      {"id": "Computer HW", "group": 2},
+      {"id": "Voice Infrastructure", "group": 2},
+      {"id": "network solutions", "group": 2},
+      {"id": "Computer SW", "group": 2}
     ],
     "links": [
-      {"source": "Platform", "target": "Platform", "value": 1},
-      {"source": "Failertalk", "target": "Platform", "value": 2},
-      {"source": "Ttagttaguli", "target": "Platform", "value": 2},
-      {"source": "naafaa", "target": "Platform", "value": 2},
-      {"source": "moonjapay", "target": "Platform", "value": 2}
+      {"source": "server solution", "target": "SI", "value": 2},
+      {"source": "security solutions", "target": "SI", "value": 2},
+      {"source": "Computer HW", "target": "SI", "value": 2},
+      {"source": "Voice Infrastructure", "target": "SI", "value": 2},
+      {"source": "network solutions", "target": "SI", "value": 2},
+      {"source": "Computer SW", "target": "SI", "value": 2}
     ]
   }

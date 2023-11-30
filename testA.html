@@ -41,6 +41,9 @@
         z-index: 1000;
         text-align: center;
         padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        /* 추가된 부분 */
     }
 
     nav ul {
@@ -48,12 +51,12 @@
         margin: 0;
         padding: 0;
         display: flex;
-        justify-content: center;
+        align-items: center;
+        /* 수정된 부분 */
     }
 
     nav li {
         margin: 0 10px;
-        /* Adjust spacing between menu items as needed */
     }
 
     nav a {
@@ -66,11 +69,8 @@
 
     .logo {
         max-height: 40px;
-        position: fixed;
-        top: 10px;
-        /* Adjust the top spacing as needed */
-        left: 10px;
-        /* Adjust the left spacing as needed */
+        margin-right: 10px;
+        /* 추가된 부분 */
     }
 
 
@@ -82,31 +82,51 @@
     }
 
     #text-overlay {
-    position: absolute;
-    top: 50%;
-    left: 80%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    color: white;
-    z-index: 1000; /* Make sure it's above the graph */
-}
-@media screen and (max-width: 900px) {
-    #text-overlay {
-        top: 30%;
-        left: 50%; /* Keep it centered horizontally */
+        position: absolute;
+        top: 50%;
+        left: 80%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: white;
+        z-index: 1000;
+        /* Make sure it's above the graph */
     }
-    #text-overlay h1{
-        font-size: 18pt;
+
+    @media screen and (max-width: 900px) {
+        #text-overlay {
+            top: 30%;
+            left: 50%;
+            /* Keep it centered horizontally */
+        }
+
+        #text-overlay h1 {
+            font-size: 18pt;
+        }
+
+        #text-overlay h3 {
+            font-size: 11pt;
+        }
     }
-    #text-overlay h3{
-        font-size: 11pt;
+
+    #direction {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 15px;
+        display: none;
+        cursor: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none
     }
-}
 </style>
 
 <body>
     <nav>
-        <img src="image/logo2.png" alt="Logo" class="logo" width="150">
+        <img src="image/logo2.png" alt="Logo" class="logo">
         <ul>
             <li><a href="#whoweare">WHO WE ARE</a></li>
             <li><a href="#networksolution">NETWORK SOLUTION</a></li>
@@ -119,8 +139,27 @@
         <H3>IT 네트워크 솔루션을 기본으로<br>플랫폼 개발, 서버 및 보안솔루션, IoT 솔루션 외<br>융복합 IT SI를 위해 지속적으로 노력합니다.</H3>
     </div>
     <div id="3d-graph"></div>
+    <div id="direction">click & drag</div>
 
     <script>
+        const directionLabel = document.getElementById("direction");
+        let mouseX = 0;
+        let mouseY = 0;
+
+        window.addEventListener("mousemove", (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        setInterval(() => {
+            if (!isModalOpen) {
+                directionLabel.style.display = "block";
+                directionLabel.style.left = mouseX + "px";
+                directionLabel.style.top = mouseY + "px";
+            } else {
+                directionLabel.style.display = "none";
+            }
+        }, 10);
         const distance = 270;
         let isModalOpen = false;
 
@@ -132,12 +171,15 @@
         }
 
         const nodeImages = {
-            1: "image/Platform.svg",
+            1: "image/SI.svg",
             2: {
-                Failertalk: "image/Failertalk.svg",
-                Ttagttaguli: "image/Ttakttaguri.svg",
-                naafaa: "image/Naafaa.svg",
-                moonjapay: "image/Moonjapay.svg"
+                "server solution": "image/Server.svg",
+                "security solutions": "image/Security.svg",
+                "network solutions": "image/Network.svg",
+                "Computer HW": "image/Hardware.svg",
+                "Voice Infrastructure": "image/Voiceinfra.svg",
+                "Computer SW": "image/Software.svg",
+
             }
         };
 
@@ -162,9 +204,9 @@
                 const intersects = raycaster.intersectObject(node.__threeObj, true);
 
                 if (
-                    ["Failertalk", "Ttagttaguli", "naafaa", "moonjapay"].includes(node.id)
+                    ["server solution", "security solutions", "network solutions", "Computer HW", "Voice Infrastructure", "Computer SW"].includes(node.id)
                 ) {
-                    const targetNodes = ["Platform"];
+                    const targetNodes = ["SI"];
 
                     const targetNodePositions = targetNodes.map((targetNode) => {
                         const targetNodeData = Graph.graphData().nodes.find(
@@ -186,27 +228,6 @@
                             `${node.id} 노드의 좌표에서 ${target.id}노드 까지의 좌표 값: X=${coordinates.x.toFixed(2)}, Y=${coordinates.y.toFixed(2)}`
                         );
                     });
-                }
-
-                if (intersects.length > 0) {
-                    clickedNodeId = node.id;
-
-                    switch (node.id) {
-                        case "naafaa":
-                            showNaafaModal();
-                            break;
-                        case "Failertalk":
-                            showFailerModal();
-                            break;
-                        case "Ttagttaguli":
-                            showTtackModal();
-                            break;
-                        case "moonjapay":
-                            showPayModal();
-                            break;
-                        default:
-                            break;
-                    }
                 }
             })
             .nodeThreeObject((node) => {
@@ -257,10 +278,22 @@
             })
             .onEngineTick(() => {
                 const graphData = Graph.graphData();
-                const centerNode = graphData.nodes.find((n) => n.id === "Platform");
+                const centerNode = graphData.nodes.find((n) => n.id === "SI");
+                const securityNode = graphData.nodes.find((n) => n.id === "server solution");
+                const serverNode = graphData.nodes.find((n) => n.id === "security solutions");
+                const networkNode = graphData.nodes.find((n) => n.id === "network solutions");
+                const hwNode = graphData.nodes.find((n) => n.id === "Computer HW");
+                const swNode = graphData.nodes.find((n) => n.id === "Computer SW");
+                const voiceNode = graphData.nodes.find((n) => n.id === "Voice Infrastructure");
 
-                if (centerNode) {
+                if (centerNode && securityNode && serverNode && networkNode && hwNode && swNode && voiceNode) {
                     centerNode.__threeObj.scale.set(3, 3, 3);
+                    serverNode.__threeObj.scale.set(1.5, 1.5, 1.5);
+                    securityNode.__threeObj.scale.set(1.5, 1.5, 1.5);
+                    networkNode.__threeObj.scale.set(1.5, 1.5, 1.5);
+                    hwNode.__threeObj.scale.set(1.5, 1.5, 1.5);
+                    swNode.__threeObj.scale.set(1.5, 1.5, 1.5);
+                    voiceNode.__threeObj.scale.set(1.5, 1.5, 1.5);
                 }
             });
 
@@ -323,18 +356,15 @@
                 }, 1000);
             }
         });
-
         window.addEventListener("mouseup", () => {
             clearTimeout(mouseDownTimeout);
             mouseDown = false;
         });
-
         window.addEventListener("mousemove", (e) => {
             if (mouseDown) {
                 getMouseDirection(e);
             }
         });
-
         function getMouseDirection(e) {
             const xDir = prevX <= e.pageX ? "right" : "left";
             prevX = e.pageX;
@@ -353,7 +383,6 @@
                 angle -= Math.PI / 100;
             }
         }
-
     </script>
 </body>
 
