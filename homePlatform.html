@@ -1,5 +1,3 @@
-<!-- section에 텍스트,아이콘 배치 -->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,6 +12,7 @@
 
     <script src="//unpkg.com/three"></script>
     <script src="//unpkg.com/3d-force-graph"></script>
+    <script src="https://kit.fontawesome.com/3624917c4f.js" crossorigin="anonymous"></script>
 </head>
 <style>
     body {
@@ -122,6 +121,24 @@
         -ms-user-select: none;
         user-select: none
     }
+    #progress-bar-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 10px;
+        background-color: #666262;
+        overflow: hidden;
+    }
+
+    #progress-bar {
+        height: 100%;
+        width: 0;
+        background-color: white;
+        transition: width 5s ease-in-out;
+    }
+
+    
 </style>
 
 <body>
@@ -140,8 +157,37 @@
     </div>
     <div id="3d-graph"></div>
     <div id="direction">click & drag</div>
+    <div id="progress-bar-container">
+        <div id="progress-bar"></div>
+    </div>
+
 
     <script>
+        const progressBar = document.getElementById("progress-bar");
+        let progress = 0;
+
+        function updateProgressBar() {
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function startProgressBar() {
+            const interval = setInterval(() => {
+                if (progress < 100) {
+                    progress += 10;
+                    updateProgressBar();
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        window.location.href = "homeSI.html";
+                    }, 5000);
+                }
+            }, 50);
+        }
+
+        // Call startProgressBar when your application is ready to start loading
+        startProgressBar();
+
+
         const directionLabel = document.getElementById("direction");
         let mouseX = 0;
         let mouseY = 0;
@@ -152,7 +198,9 @@
         });
 
         setInterval(() => {
-            if (!isModalOpen) {
+            const isMouseOverNav = isMouseOverElement(mouseX, mouseY, nav);
+
+            if (!isModalOpen && !isMouseOverNav) {
                 directionLabel.style.display = "block";
                 directionLabel.style.left = mouseX + "px";
                 directionLabel.style.top = mouseY + "px";
@@ -160,7 +208,17 @@
                 directionLabel.style.display = "none";
             }
         }, 10);
-        const distance = 270;
+
+        function isMouseOverElement(mouseX, mouseY, element) {
+            const rect = element.getBoundingClientRect();
+            return (
+                mouseX >= rect.left &&
+                mouseX <= rect.right &&
+                mouseY >= rect.top &&
+                mouseY <= rect.bottom
+            );
+        }
+        const distance = 200;
         let isModalOpen = false;
 
         function calculateDistanceWithUnits(node1, node2) {
@@ -171,20 +229,17 @@
         }
 
         const nodeImages = {
-            1: "image/SI.svg",
+            1: "image/Platform.svg",
             2: {
-                "server solution": "image/Server.svg",
-                "security solutions": "image/Security.svg",
-                "network solutions": "image/Network.svg",
-                "Computer HW": "image/Hardware.svg",
-                "Voice Infrastructure": "image/Voiceinfra.svg",
-                "Computer SW": "image/Software.svg",
-
-            }
+                Failertalk: "image/Failertalk.svg",
+                ttakttaguri: "image/Ttakttaguri.svg",
+                naafaa: "image/NAAFAA.svg",
+                moonjapay: "image/Moonjapay.svg",
+            },
         };
 
         const Graph = ForceGraph3D()(document.getElementById("3d-graph"))
-            .jsonUrl("../datasets/testA.json")
+            .jsonUrl("../datasets/Platform.json")
             .nodeLabel("id")
             .nodeAutoColorBy("group")
             .linkDirectionalParticleSpeed(0.02)
@@ -192,6 +247,7 @@
             .linkOpacity(1.0)
             .enableNavigationControls(false)
             .enableNodeDrag(false)
+
             .onNodeClick((node, event) => {
                 const raycaster = new THREE.Raycaster();
                 const mouse = new THREE.Vector2();
@@ -204,9 +260,9 @@
                 const intersects = raycaster.intersectObject(node.__threeObj, true);
 
                 if (
-                    ["server solution", "security solutions", "network solutions", "Computer HW", "Voice Infrastructure", "Computer SW"].includes(node.id)
+                    ["Failertalk", "ttakttaguri", "naafaa", "moonjapay"].includes(node.id)
                 ) {
-                    const targetNodes = ["SI"];
+                    const targetNodes = ["Platform"];
 
                     const targetNodePositions = targetNodes.map((targetNode) => {
                         const targetNodeData = Graph.graphData().nodes.find(
@@ -278,22 +334,18 @@
             })
             .onEngineTick(() => {
                 const graphData = Graph.graphData();
-                const centerNode = graphData.nodes.find((n) => n.id === "SI");
-                const securityNode = graphData.nodes.find((n) => n.id === "server solution");
-                const serverNode = graphData.nodes.find((n) => n.id === "security solutions");
-                const networkNode = graphData.nodes.find((n) => n.id === "network solutions");
-                const hwNode = graphData.nodes.find((n) => n.id === "Computer HW");
-                const swNode = graphData.nodes.find((n) => n.id === "Computer SW");
-                const voiceNode = graphData.nodes.find((n) => n.id === "Voice Infrastructure");
+                const centerNode = graphData.nodes.find((n) => n.id === "Platform");
+                const failerNode = graphData.nodes.find((n) => n.id === "Failertalk");
+                const ttakNode = graphData.nodes.find((n) => n.id === "ttakttaguri");
+                const naafaaNode = graphData.nodes.find((n) => n.id === "naafaa");
+                const moonNode = graphData.nodes.find((n) => n.id === "moonjapay");
 
-                if (centerNode && securityNode && serverNode && networkNode && hwNode && swNode && voiceNode) {
+                if (centerNode && failerNode && ttakNode && naafaaNode && moonNode) {
                     centerNode.__threeObj.scale.set(3, 3, 3);
-                    serverNode.__threeObj.scale.set(1.5, 1.5, 1.5);
-                    securityNode.__threeObj.scale.set(1.5, 1.5, 1.5);
-                    networkNode.__threeObj.scale.set(1.5, 1.5, 1.5);
-                    hwNode.__threeObj.scale.set(1.5, 1.5, 1.5);
-                    swNode.__threeObj.scale.set(1.5, 1.5, 1.5);
-                    voiceNode.__threeObj.scale.set(1.5, 1.5, 1.5);
+                    failerNode.__threeObj.scale.set(1.5, 1.5, 1.5);
+                    ttakNode.__threeObj.scale.set(1.5, 1.5, 1.5);
+                    naafaaNode.__threeObj.scale.set(1.5, 1.5, 1.5);
+                    moonNode.__threeObj.scale.set(1.5, 1.5, 1.5);
                 }
             });
 
