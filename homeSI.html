@@ -14,6 +14,23 @@
     <script src="//unpkg.com/3d-force-graph"></script>
 </head>
 <style>
+    html {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    *,
+    *:before,
+    *:after {
+        -webkit-box-sizing: inherit;
+        -moz-box-sizing: inherit;
+        box-sizing: inherit;
+        padding: 0;
+        margin: 0;
+        text-decoration: none;
+    }
+
     body {
         margin: 0;
         overflow: hidden;
@@ -32,46 +49,6 @@
         /* Set the cursor style to 'grabbing' when dragging is in progress */
     }
 
-    nav {
-        position: fixed;
-        width: 100%;
-        top: 0;
-        z-index: 1000;
-        text-align: center;
-        padding: 10px;
-        display: flex;
-        justify-content: space-between;
-        /* 추가된 부분 */
-    }
-
-    nav ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        /* 수정된 부분 */
-    }
-
-    nav li {
-        margin: 0 10px;
-    }
-
-    nav a {
-        display: block;
-        color: rgb(255, 255, 255);
-        text-align: center;
-        padding: 14px 16px;
-        text-decoration: none;
-    }
-
-    .logo {
-        max-height: 40px;
-        margin-right: 10px;
-        /* 추가된 부분 */
-    }
-
-
     #3d-graph {
         width: 100%;
         height: 100vh;
@@ -81,18 +58,18 @@
 
     #text-overlay {
         position: absolute;
-        top: 50%;
-        left: 80%;
-        transform: translate(-50%, -50%);
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50%;
         text-align: center;
         color: white;
         z-index: 1000;
-        /* Make sure it's above the graph */
     }
 
     @media screen and (max-width: 900px) {
         #text-overlay {
-            top: 30%;
+            top: 15%;
             left: 50%;
             /* Keep it centered horizontally */
         }
@@ -137,17 +114,195 @@
         background-color: white;
         transition: width 5s ease-in-out;
     }
+
+    .logo {
+        display: inline-block;
+        margin-right: 20px;
+        /* Adjust the margin as needed */
+    }
+
+    .logo img {
+        height: 40px;
+        /* Adjust the height of your logo */
+        width: auto;
+    }
+
+
+    nav {
+        background-color: #fafafa;
+        width: 100%;
+        text-align: center;
+        position: relative;
+        z-index: 1001;
+        /* Add this line to center the nav horizontally */
+    }
+
+    ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    li {
+        display: inline-block;
+    }
+
+    a,
+    .hamburger {
+        font-weight: 400;
+        font-size: 18px;
+        padding: 12px 15px;
+        text-decoration: none;
+        color: #383838;
+        display: block;
+    }
+
+    a:hover {
+        color: #858585;
+    }
+
+    .intro,
+    .network,
+    .sw,
+    .contact {
+        position: relative;
+    }
+
+    .dropdown {
+        position: absolute;
+        background-color: #fafafa;
+        width: 150%;
+        left: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        z-index: 1;
+    }
+
+    .dropdown a {
+        font-weight: 100;
+        /*font-size: 16px;*/
+        padding: 5px 15px;
+    }
+
+    .caret {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        margin-left: 2px;
+        vertical-align: middle;
+        border-top: 4px dashed;
+        border-top: 4px solid \9;
+        border-right: 4px solid transparent;
+        border-left: 4px solid transparent;
+    }
+
+    .intro-dropdown,
+    .network-dropdown,
+    .sw-dropdown,
+    .contact-dropdown,
+    .hamburger {
+        display: none;
+    }
+
+    .hamburger {
+        cursor: pointer;
+        font-size: 30px; 
+    }
+
+    .intro:hover>.intro-dropdown,
+    .network:hover>.network-dropdown,
+    .sw:hover>.sw-dropdown,
+    .contact:hover>.contact-dropdown,
+    .dropdown li {
+        display: block;
+    }
+
+    @media all and (max-width: 768px) {
+        .dropdown {
+            width: 70%;
+            left: 10%;
+        }
+
+        .menu {
+            display: none;
+        }
+
+        .menu>li {
+            display: block;
+        }
+
+        .hamburger {
+            display: inline-block;
+            position: absolute;
+            top: 10px;
+            /* Adjust the top position as needed */
+            right: 10px;
+            /* Adjust the right position as needed */
+        }
+    }
+
+    @media all and (min-width: 769px) {
+        .menu {
+            display: block !important;
+        }
+
+        .hamburger {
+            display: none;
+        }
+    }
 </style>
 
 <body>
     <nav>
-        <img src="image/logo2.png" alt="Logo" class="logo">
-        <ul>
-            <li><a href="#whoweare">WHO WE ARE</a></li>
-            <li><a href="#networksolution">NETWORK SOLUTION</a></li>
-            <li><a href="#swsolution">SW SOLUTION</a></li>
-            <li><a href="#contactus">CONTACT US</a></li>
-        </ul>
+        <a href="#" class="logo">
+            <img src="image/logo2.png" alt="Company Logo">
+        </a>
+        <span class="hamburger">&#x2261;</span>
+        <ul class="menu">
+            <li class="intro">
+                <a href="#">
+                    Who We Are
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown intro-dropdown">
+                    <li><a href="#">기업소개</a></li>
+                    <li><a href="#">History</a></li>
+                    <li><a href="#">기술인증</a></li>
+                    <li><a href="#">주요고객사</a></li>
+                </ul>
+            </li>
+            <li class="network">
+                <a href="#">
+                    Network Solution
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown network-dropdown">
+                    <li><a href="#">Hospital & Bio Health</a></li>
+                    <li><a href="#">System Infra IT</a></li>
+                    <li><a href="#">Display</a></li>
+                </ul>
+            </li>
+            <li class="sw">
+                <a href="#">
+                    SW Solution
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown sw-dropdown">
+                    <li><a href="#">나아파</a></li>
+                    <li><a href="#">문자페이</a></li>
+                    <li><a href="#">딱따구리</a></li>
+                    <li><a href="#">페일러톡</a></li>
+                </ul>
+            </li>
+            <li class="contact">
+                <a href="#">
+                    Contact Us
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown contact-dropdown">
+                    <li><a href="#">문의하기</a></li>
+                    <li><a href="#">찾아오시는 길</a></li>
+                </ul>
+            </li>
     </nav>
     <div id="text-overlay">
         <h1>네트워크 솔루션 전문가를 넘어 융복합 IT SI, 플랫폼 까지</h1>
@@ -160,8 +315,13 @@
     </div>
 
 
-
+    <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
+        $(document).ready(function () {
+            $(".hamburger").on("click", function () {
+                $(".menu").slideToggle();
+            });
+        });
         const progressBar = document.getElementById("progress-bar");
         let progress = 0;
 
@@ -186,7 +346,6 @@
         // Call startProgressBar when your application is ready to start loading
         startProgressBar();
 
-        const nav = document.querySelector("nav");
         const directionLabel = document.getElementById("direction");
         let mouseX = 0;
         let mouseY = 0;
@@ -250,7 +409,7 @@
             .linkOpacity(1.0)
             .enableNavigationControls(false)
             .enableNodeDrag(false)
-            
+
             .onNodeClick((node, event) => {
                 const raycaster = new THREE.Raycaster();
                 const mouse = new THREE.Vector2();
@@ -356,7 +515,7 @@
                 }
             });
 
-        
+
 
         setInterval(() => {
             if (!isModalOpen) {
